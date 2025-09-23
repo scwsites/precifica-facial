@@ -1,0 +1,1634 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precifica Fácil - Controle de Custos e Lucros</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        primaryDark: '#1d4ed8',
+                        secondary: '#64748b',
+                        accent: '#0ea5e9'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-calculator text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Precifica Fácil</h1>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Controle de Custos e Lucros</p>
+            </div>
+
+            <div id="loginForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Nome de Usuário
+                        </label>
+                        <input type="text" id="loginUsername" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Senha
+                        </label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <button onclick="handleLogin()" class="w-full bg-primary hover:bg-primaryDark text-white py-3 rounded-lg font-medium transition-colors">
+                        Entrar
+                    </button>
+                    <button onclick="showRegisterForm()" class="w-full text-primary hover:text-primaryDark font-medium py-2 transition-colors">
+                        Criar Nova Conta
+                    </button>
+                </div>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Nome de Usuário
+                        </label>
+                        <input type="text" id="regUsername" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            E-mail
+                        </label>
+                        <input type="email" id="regEmail" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Senha
+                        </label>
+                        <input type="password" id="regPassword" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <button onclick="handleRegister()" class="w-full bg-primary hover:bg-primaryDark text-white py-3 rounded-lg font-medium transition-colors">
+                        Registrar
+                    </button>
+                    <button onclick="showLoginForm()" class="w-full text-primary hover:text-primaryDark font-medium py-2 transition-colors">
+                        Já tenho conta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Plans Screen -->
+    <div id="subscriptionScreen" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div class="container mx-auto px-4 py-12">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-crown text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    Escolha seu Plano
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    Comece com 24 horas grátis e escolha o plano ideal para seu negócio
+                </p>
+            </div>
+
+            <!-- Subscription Status -->
+            <div id="subscriptionStatus" class="mb-8 hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 max-w-4xl mx-auto border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-check text-green-600 dark:text-green-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white" id="currentPlanName">Plano Ativo</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400" id="planExpiryInfo">Expira em: --</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-primary" id="currentPlanPrice">R$ 0,00</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">por mês</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plans Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
+                <!-- Free Trial -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700 relative">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-gift text-gray-600 dark:text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Teste Grátis</h3>
+                        <div class="text-4xl font-bold text-gray-900 dark:text-white mb-1">Grátis</div>
+                        <div class="text-gray-600 dark:text-gray-400 mb-6">por 24 horas</div>
+                        
+                        <ul class="text-left space-y-3 mb-8">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Até 5 produtos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Cálculos básicos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Relatórios simples</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-times text-red-500 mr-3"></i>
+                                <span class="text-gray-500 dark:text-gray-400">Suporte limitado</span>
+                            </li>
+                        </ul>
+                        
+                        <button onclick="startFreeTrial()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-medium transition-colors">
+                            Começar Teste
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Monthly Plan -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border-2 border-primary relative transform scale-105">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-primary text-white px-4 py-2 rounded-full text-sm font-medium">
+                            Mais Popular
+                        </span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-star text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Plano Mensal</h3>
+                        <div class="text-4xl font-bold text-gray-900 dark:text-white mb-1">R$ 49,99</div>
+                        <div class="text-gray-600 dark:text-gray-400 mb-6">por mês</div>
+                        
+                        <ul class="text-left space-y-3 mb-8">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Produtos ilimitados</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Todos os cálculos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Relatórios completos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Suporte prioritário</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Exportação PDF</span>
+                            </li>
+                        </ul>
+                        
+                        <button onclick="selectPlan('monthly', 49.99)" class="w-full bg-primary hover:bg-primaryDark text-white py-3 rounded-lg font-medium transition-colors">
+                            Assinar Agora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Annual Plan -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700 relative">
+                    <div class="absolute -top-4 right-4">
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                            46% OFF
+                        </span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-trophy text-green-600 dark:text-green-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Plano Anual</h3>
+                        <div class="text-4xl font-bold text-gray-900 dark:text-white mb-1">R$ 27,00</div>
+                        <div class="text-gray-600 dark:text-gray-400 mb-2">por mês</div>
+                        <div class="text-sm text-green-600 dark:text-green-400 mb-4">
+                            <strike class="text-gray-500">R$ 49,99</strike> Economize R$ 275,88/ano
+                        </div>
+                        
+                        <ul class="text-left space-y-3 mb-8">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Produtos ilimitados</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Todos os cálculos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Relatórios completos</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Suporte prioritário</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Exportação PDF</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">2 meses grátis</span>
+                            </li>
+                        </ul>
+                        
+                        <button onclick="selectPlan('annual', 324.00)" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors">
+                            Assinar Anual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+                    Recursos Disponíveis
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-calculator text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Cálculos Precisos</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Calcule preços com divisão automática de custos e sugestões inteligentes
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chart-line text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Relatórios Detalhados</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Visualize lucros por produto e categoria com gráficos interativos
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-cloud text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Dados Seguros</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Seus dados ficam salvos na nuvem com total segurança
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back to Login -->
+            <div class="text-center">
+                <button onclick="backToLogin()" class="text-primary hover:text-primaryDark font-medium">
+                    ← Voltar ao Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-calculator text-white text-sm"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Precifica Fácil</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-600 dark:text-gray-300" id="userGreeting"></span>
+                        <button onclick="logout()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-8">
+                    <button onclick="showSection('overview')" id="nav-overview" class="nav-btn py-3 px-1 border-b-2 border-primary text-primary font-medium text-sm">
+                        <i class="fas fa-chart-pie mr-2"></i>Visão Geral
+                    </button>
+                    <button onclick="showSection('products')" id="nav-products" class="nav-btn py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium text-sm">
+                        <i class="fas fa-box mr-2"></i>Produtos
+                    </button>
+                    <button onclick="showSection('reports')" id="nav-reports" class="nav-btn py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium text-sm">
+                        <i class="fas fa-chart-bar mr-2"></i>Relatórios
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Overview Section -->
+            <div id="overviewSection" class="fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-box text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Produtos</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalProducts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-green-600 dark:text-green-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Receita Prevista</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalRevenue">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-purple-600 dark:text-purple-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Lucro Previsto</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalProfit">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-minus-circle text-red-600 dark:text-red-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Custos Totais</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalCosts">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Distribuição por Categoria</h3>
+                        <canvas id="categoryChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Produtos Recentes</h3>
+                        <div id="recentProducts" class="space-y-3">
+                            <p class="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum produto cadastrado ainda</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="productsSection" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Produtos e Serviços</h2>
+                    <button onclick="showAddProductForm()" class="bg-primary hover:bg-primaryDark text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Adicionar Produto
+                    </button>
+                </div>
+
+                <!-- Product Form -->
+                <div id="productForm" class="hidden bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700 slide-up">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cadastrar Produto/Serviço</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome do Produto/Serviço</label>
+                            <input type="text" id="productName" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Categoria</label>
+                            <select id="productCategory" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Beleza">Beleza</option>
+                                <option value="Alimentação">Alimentação</option>
+                                <option value="Vestuário">Vestuário</option>
+                                <option value="Tecnologia">Tecnologia</option>
+                                <option value="Casa e Jardim">Casa e Jardim</option>
+                                <option value="Serviços">Serviços</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Valor Base Unitário (R$)</label>
+                            <input type="number" id="productBasePrice" step="0.01" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantidade Comprada</label>
+                            <input type="number" id="productQuantityPurchased" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gastos Adicionais Totais (R$)</label>
+                            <input type="number" id="productAdditionalCosts" step="0.01" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Ex: Frete, embalagem, impostos">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Margem de Lucro (%)</label>
+                            <input type="number" id="productProfitMargin" step="0.1" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantidade Prevista</label>
+                            <input type="number" id="productQuantity" class="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-4">
+                        <!-- Breakdown de Custos -->
+                        <div class="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Breakdown de Custos por Unidade</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Custo Base Unitário:</span>
+                                    <div class="font-bold text-gray-900 dark:text-white" id="unitBasePrice">R$ 0,00</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Gasto Adicional/Unidade:</span>
+                                    <div class="font-bold text-orange-600 dark:text-orange-400" id="unitAdditionalCost">R$ 0,00</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Custo Total/Unidade:</span>
+                                    <div class="font-bold text-red-600 dark:text-red-400" id="unitTotalCost">R$ 0,00</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Investimento Total:</span>
+                                    <div class="font-bold text-purple-600 dark:text-purple-400" id="totalInvestment">R$ 0,00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cálculo de Venda -->
+                        <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Resultado de Venda</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Preço de Venda Unitário:</span>
+                                    <div class="font-bold text-green-600 dark:text-green-400 text-lg" id="calculatedPrice">R$ 0,00</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Receita Total:</span>
+                                    <div class="font-bold text-blue-600 dark:text-blue-400 text-lg" id="calculatedRevenue">R$ 0,00</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 dark:text-gray-400">Lucro Total:</span>
+                                    <div class="font-bold text-purple-600 dark:text-purple-400 text-lg" id="calculatedProfit">R$ 0,00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sugestões de Preço -->
+                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg" id="priceSuggestions">
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-3">💡 Sugestões de Preço de Venda</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm" id="suggestionsGrid">
+                                <!-- Sugestões serão inseridas aqui -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button onclick="hideAddProductForm()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                            Cancelar
+                        </button>
+                        <button onclick="saveProduct()" class="bg-primary hover:bg-primaryDark text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            Salvar Produto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products List -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Lista de Produtos</h3>
+                        <div id="productsList" class="space-y-4">
+                            <p class="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum produto cadastrado ainda</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="hidden">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Relatórios Detalhados</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Lucratividade por Produto</h3>
+                        <canvas id="profitChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Receita por Categoria</h3>
+                        <canvas id="revenueChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Relatório Detalhado</h3>
+                            <button onclick="exportReport()" class="bg-accent hover:bg-sky-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                <i class="fas fa-download mr-2"></i>Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="detailedReport" class="overflow-x-auto">
+                            <p class="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum dado disponível para relatório</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+            <p id="modalMessage" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+            <div class="flex justify-end space-x-3">
+                <button id="modalCancel" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="hideModal()">Cancelar</button>
+                <button id="modalConfirm" class="px-4 py-2 bg-primary text-white hover:bg-primaryDark rounded">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Data storage (using variables since localStorage is not available)
+        let userData = {
+            username: '',
+            email: '',
+            products: []
+        };
+
+        let currentEditingId = null;
+
+        // Utility functions
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value || 0);
+        }
+
+        function showModal(message, onConfirm, showCancel = true) {
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalCancel').style.display = showCancel ? 'block' : 'none';
+            document.getElementById('modalConfirm').onclick = () => {
+                hideModal();
+                if (onConfirm) onConfirm();
+            };
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function showAlert(message) {
+            showModal(message, null, false);
+        }
+
+        // Authentication functions
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAlert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            userData.username = username;
+            document.getElementById('userGreeting').textContent = `Olá, ${username}!`;
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            updateDashboard();
+        }
+
+        function handleRegister() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!username || !email || !password) {
+                showAlert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            userData.username = username;
+            userData.email = email;
+            
+            showAlert('Conta criada com sucesso!');
+            showLoginForm();
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function logout() {
+            showModal('Tem certeza que deseja sair?', () => {
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                
+                // Clear forms
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+            });
+        }
+
+        // Navigation functions
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('overviewSection').classList.add('hidden');
+            document.getElementById('productsSection').classList.add('hidden');
+            document.getElementById('reportsSection').classList.add('hidden');
+
+            // Show selected section
+            document.getElementById(section + 'Section').classList.remove('hidden');
+            document.getElementById(section + 'Section').classList.add('fade-in');
+
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-200');
+            });
+
+            document.getElementById('nav-' + section).classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-200');
+            document.getElementById('nav-' + section).classList.add('border-primary', 'text-primary');
+
+            if (section === 'reports') {
+                updateReports();
+            }
+        }
+
+        // Product functions
+        function showAddProductForm() {
+            document.getElementById('productForm').classList.remove('hidden');
+            currentEditingId = null;
+            clearProductForm();
+        }
+
+        function hideAddProductForm() {
+            document.getElementById('productForm').classList.add('hidden');
+            currentEditingId = null;
+        }
+
+        function clearProductForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productCategory').value = '';
+            document.getElementById('productBasePrice').value = '';
+            document.getElementById('productQuantityPurchased').value = '';
+            document.getElementById('productAdditionalCosts').value = '';
+            document.getElementById('productProfitMargin').value = '';
+            document.getElementById('productQuantity').value = '';
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            const basePrice = parseFloat(document.getElementById('productBasePrice').value) || 0;
+            const additionalCosts = parseFloat(document.getElementById('productAdditionalCosts').value) || 0;
+            const profitMargin = parseFloat(document.getElementById('productProfitMargin').value) || 0;
+            const quantity = parseInt(document.getElementById('productQuantity').value) || 0;
+            const quantityPurchased = parseInt(document.getElementById('productQuantityPurchased').value) || 1;
+
+            // Cálculos por unidade
+            const unitAdditionalCost = additionalCosts / quantityPurchased;
+            const unitTotalCost = basePrice + unitAdditionalCost;
+            const totalInvestment = (basePrice * quantityPurchased) + additionalCosts;
+            
+            // Cálculos de venda
+            const profitAmount = unitTotalCost * (profitMargin / 100);
+            const sellingPrice = unitTotalCost + profitAmount;
+            const totalRevenue = sellingPrice * quantity;
+            const totalProfit = profitAmount * quantity;
+
+            // Atualizar breakdown de custos
+            document.getElementById('unitBasePrice').textContent = formatCurrency(basePrice);
+            document.getElementById('unitAdditionalCost').textContent = formatCurrency(unitAdditionalCost);
+            document.getElementById('unitTotalCost').textContent = formatCurrency(unitTotalCost);
+            document.getElementById('totalInvestment').textContent = formatCurrency(totalInvestment);
+
+            // Atualizar resultados de venda
+            document.getElementById('calculatedPrice').textContent = formatCurrency(sellingPrice);
+            document.getElementById('calculatedRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('calculatedProfit').textContent = formatCurrency(totalProfit);
+
+            // Gerar sugestões de preço
+            updatePriceSuggestions(unitTotalCost);
+        }
+
+        function updatePriceSuggestions(unitTotalCost) {
+            const suggestionsGrid = document.getElementById('suggestionsGrid');
+            
+            if (unitTotalCost <= 0) {
+                suggestionsGrid.innerHTML = '<p class="text-gray-500 dark:text-gray-400 col-span-3 text-center">Preencha os dados para ver sugestões</p>';
+                return;
+            }
+
+            const suggestions = [
+                {
+                    label: 'Margem Conservadora',
+                    margin: 30,
+                    description: 'Ideal para mercado competitivo',
+                    color: 'blue'
+                },
+                {
+                    label: 'Margem Moderada',
+                    margin: 50,
+                    description: 'Equilibrio entre preço e lucro',
+                    color: 'green'
+                },
+                {
+                    label: 'Margem Agressiva',
+                    margin: 80,
+                    description: 'Para produtos premium/únicos',
+                    color: 'purple'
+                }
+            ];
+
+            suggestionsGrid.innerHTML = suggestions.map(suggestion => {
+                const price = unitTotalCost * (1 + suggestion.margin / 100);
+                const profit = price - unitTotalCost;
+                
+                return `
+                    <div class="p-3 bg-${suggestion.color}-50 dark:bg-${suggestion.color}-900 rounded-lg border border-${suggestion.color}-200 dark:border-${suggestion.color}-700">
+                        <div class="font-semibold text-${suggestion.color}-800 dark:text-${suggestion.color}-200 mb-1">
+                            ${suggestion.label} (${suggestion.margin}%)
+                        </div>
+                        <div class="text-lg font-bold text-${suggestion.color}-600 dark:text-${suggestion.color}-400 mb-1">
+                            ${formatCurrency(price)}
+                        </div>
+                        <div class="text-xs text-${suggestion.color}-600 dark:text-${suggestion.color}-400 mb-1">
+                            Lucro: ${formatCurrency(profit)}
+                        </div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400">
+                            ${suggestion.description}
+                        </div>
+                        <button onclick="applySuggestion(${suggestion.margin})" 
+                                class="mt-2 w-full bg-${suggestion.color}-600 hover:bg-${suggestion.color}-700 text-white text-xs py-1 px-2 rounded transition-colors">
+                            Aplicar
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applySuggestion(margin) {
+            document.getElementById('productProfitMargin').value = margin;
+            updateCalculations();
+        }
+
+        function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('productCategory').value;
+            const basePrice = parseFloat(document.getElementById('productBasePrice').value) || 0;
+            const additionalCosts = parseFloat(document.getElementById('productAdditionalCosts').value) || 0;
+            const profitMargin = parseFloat(document.getElementById('productProfitMargin').value) || 0;
+            const quantity = parseInt(document.getElementById('productQuantity').value) || 0;
+            const quantityPurchased = parseInt(document.getElementById('productQuantityPurchased').value) || 1;
+
+            if (!name || !category || basePrice <= 0 || quantityPurchased <= 0) {
+                showAlert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            // Cálculos corretos com quantidade comprada
+            const unitAdditionalCost = additionalCosts / quantityPurchased;
+            const unitTotalCost = basePrice + unitAdditionalCost;
+            const profitAmount = unitTotalCost * (profitMargin / 100);
+            const sellingPrice = unitTotalCost + profitAmount;
+            const totalInvestment = (basePrice * quantityPurchased) + additionalCosts;
+
+            const product = {
+                id: currentEditingId || Date.now(),
+                name,
+                category,
+                basePrice,
+                additionalCosts,
+                profitMargin,
+                quantity,
+                quantityPurchased,
+                unitAdditionalCost,
+                unitTotalCost,
+                sellingPrice,
+                totalCost: unitTotalCost, // Para compatibilidade
+                profitAmount,
+                totalInvestment
+            };
+
+            if (currentEditingId) {
+                const index = userData.products.findIndex(p => p.id === currentEditingId);
+                userData.products[index] = product;
+            } else {
+                userData.products.push(product);
+            }
+
+            hideAddProductForm();
+            updateProductsList();
+            updateDashboard();
+            showAlert('Produto salvo com sucesso!');
+        }
+
+        function editProduct(id) {
+            const product = userData.products.find(p => p.id === id);
+            if (!product) return;
+
+            currentEditingId = id;
+            
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productBasePrice').value = product.basePrice;
+            document.getElementById('productQuantityPurchased').value = product.quantityPurchased || 1;
+            document.getElementById('productAdditionalCosts').value = product.additionalCosts;
+            document.getElementById('productProfitMargin').value = product.profitMargin;
+            document.getElementById('productQuantity').value = product.quantity;
+            
+            updateCalculations();
+            showAddProductForm();
+        }
+
+        function deleteProduct(id) {
+            showModal('Tem certeza que deseja excluir este produto?', () => {
+                userData.products = userData.products.filter(p => p.id !== id);
+                updateProductsList();
+                updateDashboard();
+            });
+        }
+
+        function updateProductsList() {
+            const container = document.getElementById('productsList');
+            
+            if (userData.products.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum produto cadastrado ainda</p>';
+                return;
+            }
+
+            container.innerHTML = userData.products.map(product => `
+                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-white">${product.name}</h4>
+                            <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full mt-1">
+                                ${product.category}
+                            </span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="editProduct(${product.id})" 
+                                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteProduct(${product.id})" 
+                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Custo Total:</span>
+                            <div class="font-semibold text-gray-900 dark:text-white">${formatCurrency(product.totalCost)}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Preço de Venda:</span>
+                            <div class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(product.sellingPrice)}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Quantidade:</span>
+                            <div class="font-semibold text-gray-900 dark:text-white">${product.quantity}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 dark:text-gray-400">Lucro Unitário:</span>
+                            <div class="font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(product.profitAmount)}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDashboard() {
+            const totalProducts = userData.products.length;
+            const totalRevenue = userData.products.reduce((sum, p) => sum + (p.sellingPrice * p.quantity), 0);
+            const totalCosts = userData.products.reduce((sum, p) => sum + (p.totalCost * p.quantity), 0);
+            const totalProfit = totalRevenue - totalCosts;
+
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('totalCosts').textContent = formatCurrency(totalCosts);
+            document.getElementById('totalProfit').textContent = formatCurrency(totalProfit);
+
+            updateRecentProducts();
+            updateCategoryChart();
+        }
+
+        function updateRecentProducts() {
+            const container = document.getElementById('recentProducts');
+            const recentProducts = userData.products.slice(-3).reverse();
+
+            if (recentProducts.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum produto cadastrado ainda</p>';
+                return;
+            }
+
+            container.innerHTML = recentProducts.map(product => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div>
+                        <div class="font-medium text-gray-900 dark:text-white">${product.name}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">${product.category}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-green-600 dark:text-green-400">${formatCurrency(product.sellingPrice)}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Qty: ${product.quantity}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            // Group products by category
+            const categoryData = userData.products.reduce((acc, product) => {
+                acc[product.category] = (acc[product.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            if (window.categoryChartInstance) {
+                window.categoryChartInstance.destroy();
+            }
+
+            const labels = Object.keys(categoryData);
+            const data = Object.values(categoryData);
+
+            if (labels.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#9CA3AF';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nenhum dado disponível', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            window.categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateReports() {
+            updateProfitChart();
+            updateRevenueChart();
+            updateDetailedReport();
+        }
+
+        function updateProfitChart() {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            
+            if (window.profitChartInstance) {
+                window.profitChartInstance.destroy();
+            }
+
+            const labels = userData.products.map(p => p.name);
+            const profits = userData.products.map(p => p.profitAmount * p.quantity);
+
+            if (labels.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#9CA3AF';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nenhum dado disponível', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            window.profitChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Lucro Total',
+                        data: profits,
+                        backgroundColor: '#8B5CF6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            if (window.revenueChartInstance) {
+                window.revenueChartInstance.destroy();
+            }
+
+            // Group revenue by category
+            const categoryRevenue = userData.products.reduce((acc, product) => {
+                const revenue = product.sellingPrice * product.quantity;
+                acc[product.category] = (acc[product.category] || 0) + revenue;
+                return acc;
+            }, {});
+
+            const labels = Object.keys(categoryRevenue);
+            const data = Object.values(categoryRevenue);
+
+            if (labels.length === 0) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = '#9CA3AF';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nenhum dado disponível', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            window.revenueChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDetailedReport() {
+            const container = document.getElementById('detailedReport');
+            
+            if (userData.products.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">Nenhum dado disponível para relatório</p>';
+                return;
+            }
+
+            const totalRevenue = userData.products.reduce((sum, p) => sum + (p.sellingPrice * p.quantity), 0);
+            const totalCosts = userData.products.reduce((sum, p) => sum + (p.totalCost * p.quantity), 0);
+            const totalProfit = totalRevenue - totalCosts;
+
+            container.innerHTML = `
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resumo Financeiro</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+                            <div class="text-green-800 dark:text-green-200 font-semibold">Receita Total</div>
+                            <div class="text-2xl font-bold text-green-600 dark:text-green-400">${formatCurrency(totalRevenue)}</div>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg">
+                            <div class="text-red-800 dark:text-red-200 font-semibold">Custos Totais</div>
+                            <div class="text-2xl font-bold text-red-600 dark:text-red-400">${formatCurrency(totalCosts)}</div>
+                        </div>
+                        <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
+                            <div class="text-purple-800 dark:text-purple-200 font-semibold">Lucro Total</div>
+                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatCurrency(totalProfit)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Produto</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Categoria</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Valor Base</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gastos Adicionais</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Preço Final</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantidade</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Lucro Unitário</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Lucro Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        ${userData.products.map(product => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${product.name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${product.category}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${formatCurrency(product.basePrice)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${formatCurrency(product.additionalCosts)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600 dark:text-green-400">${formatCurrency(product.sellingPrice)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${product.quantity}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-600 dark:text-purple-400">${formatCurrency(product.profitAmount)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-purple-600 dark:text-purple-400">${formatCurrency(product.profitAmount * product.quantity)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function exportReport() {
+            showAlert('Função de exportação será implementada em breve!');
+        }
+
+        // Event listeners for real-time calculations
+        document.addEventListener('DOMContentLoaded', function() {
+            ['productBasePrice', 'productQuantityPurchased', 'productAdditionalCosts', 'productProfitMargin', 'productQuantity'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateCalculations);
+            });
+        });
+
+        // Supabase Configuration
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+        
+        // Inicializar Supabase apenas se as credenciais estiverem configuradas
+        let supabase = null;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY_HERE') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // Subscription Management
+        let userSubscription = {
+            plan: 'free',
+            expiresAt: null,
+            isActive: false,
+            trialUsed: false
+        };
+
+        // Subscription Functions
+        function showSubscriptionScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('subscriptionScreen').classList.remove('hidden');
+            updateSubscriptionStatus();
+        }
+
+        function backToLogin() {
+            document.getElementById('subscriptionScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function startFreeTrial() {
+            const now = new Date();
+            const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 horas
+
+            userSubscription = {
+                plan: 'trial',
+                expiresAt: expiresAt,
+                isActive: true,
+                trialUsed: true
+            };
+
+            saveUserSubscription();
+            showAlert('Teste gratuito de 24 horas ativado! Aproveite todos os recursos.');
+            
+            // Ir direto para o dashboard
+            document.getElementById('subscriptionScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            updateDashboard();
+        }
+
+        function selectPlan(planType, price) {
+            showModal(`Confirma a assinatura do plano ${planType === 'monthly' ? 'mensal' : 'anual'} por ${formatCurrency(price)}?`, () => {
+                processPlanSelection(planType, price);
+            });
+        }
+
+        function processPlanSelection(planType, price) {
+            const now = new Date();
+            let expiresAt;
+
+            if (planType === 'monthly') {
+                expiresAt = new Date(now.setMonth(now.getMonth() + 1));
+            } else if (planType === 'annual') {
+                expiresAt = new Date(now.setFullYear(now.getFullYear() + 1));
+            }
+
+            userSubscription = {
+                plan: planType,
+                expiresAt: expiresAt,
+                isActive: true,
+                trialUsed: userSubscription.trialUsed
+            };
+
+            saveUserSubscription();
+            
+            // Simular processo de pagamento
+            showProcessingPayment(planType, price);
+        }
+
+        function showProcessingPayment(planType, price) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-credit-card text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Processando Pagamento</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Plano ${planType === 'monthly' ? 'Mensal' : 'Anual'} - ${formatCurrency(price)}
+                        </p>
+                        <div class="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Aguarde enquanto processamos seu pagamento...</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Simular processamento (3 segundos)
+            setTimeout(() => {
+                modal.remove();
+                showPaymentSuccess(planType);
+            }, 3000);
+        }
+
+        function showPaymentSuccess(planType) {
+            showAlert(`Pagamento aprovado! Bem-vindo ao plano ${planType === 'monthly' ? 'mensal' : 'anual'}.`);
+            
+            // Ir para o dashboard
+            document.getElementById('subscriptionScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            updateDashboard();
+        }
+
+        function updateSubscriptionStatus() {
+            const statusElement = document.getElementById('subscriptionStatus');
+            const currentPlanName = document.getElementById('currentPlanName');
+            const planExpiryInfo = document.getElementById('planExpiryInfo');
+            const currentPlanPrice = document.getElementById('currentPlanPrice');
+
+            if (userSubscription.isActive) {
+                statusElement.classList.remove('hidden');
+                
+                const planNames = {
+                    'trial': 'Teste Grátis (24h)',
+                    'monthly': 'Plano Mensal',
+                    'annual': 'Plano Anual'
+                };
+
+                const planPrices = {
+                    'trial': 'Grátis',
+                    'monthly': 'R$ 49,99',
+                    'annual': 'R$ 27,00'
+                };
+
+                currentPlanName.textContent = planNames[userSubscription.plan] || 'Plano Ativo';
+                currentPlanPrice.textContent = planPrices[userSubscription.plan] || 'R$ 0,00';
+                
+                if (userSubscription.expiresAt) {
+                    const expiryDate = new Date(userSubscription.expiresAt);
+                    planExpiryInfo.textContent = `Expira em: ${expiryDate.toLocaleDateString('pt-BR')}`;
+                } else {
+                    planExpiryInfo.textContent = 'Ativo';
+                }
+            } else {
+                statusElement.classList.add('hidden');
+            }
+        }
+
+        function checkSubscriptionValidity() {
+            if (userSubscription.expiresAt) {
+                const now = new Date();
+                const expiryDate = new Date(userSubscription.expiresAt);
+                
+                if (now > expiryDate) {
+                    userSubscription.isActive = false;
+                    saveUserSubscription();
+                    
+                    if (userSubscription.plan === 'trial') {
+                        showAlert('Seu teste gratuito de 24 horas expirou. Escolha um plano para continuar usando o app.');
+                    } else {
+                        showAlert('Sua assinatura expirou. Renove para continuar usando todos os recursos.');
+                    }
+                    
+                    showSubscriptionScreen();
+                    return false;
+                }
+            }
+            return userSubscription.isActive;
+        }
+
+        function canAddProduct() {
+            if (!userSubscription.isActive) {
+                showAlert('Você precisa de uma assinatura ativa para adicionar produtos.');
+                showSubscriptionScreen();
+                return false;
+            }
+
+            if (userSubscription.plan === 'trial' && userData.products.length >= 5) {
+                showAlert('Limite de 5 produtos atingido no teste gratuito. Faça upgrade para adicionar mais produtos.');
+                showSubscriptionScreen();
+                return false;
+            }
+
+            return true;
+        }
+
+        // Database Functions
+        async function saveUserSubscription() {
+            if (!supabase) {
+                // Fallback para variável local se Supabase não estiver configurado
+                console.log('Subscription saved locally:', userSubscription);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_subscriptions')
+                    .upsert({
+                        user_id: userData.username,
+                        plan: userSubscription.plan,
+                        expires_at: userSubscription.expiresAt,
+                        is_active: userSubscription.isActive,
+                        trial_used: userSubscription.trialUsed,
+                        updated_at: new Date()
+                    });
+
+                if (error) throw error;
+                console.log('Subscription saved to Supabase:', data);
+            } catch (error) {
+                console.error('Error saving subscription:', error);
+            }
+        }
+
+        async function loadUserSubscription() {
+            if (!supabase || !userData.username) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_subscriptions')
+                    .select('*')
+                    .eq('user_id', userData.username)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+
+                if (data) {
+                    userSubscription = {
+                        plan: data.plan,
+                        expiresAt: data.expires_at,
+                        isActive: data.is_active,
+                        trialUsed: data.trial_used
+                    };
+                }
+            } catch (error) {
+                console.error('Error loading subscription:', error);
+            }
+        }
+
+        async function saveUserProducts() {
+            if (!supabase || !userData.username) return;
+
+            try {
+                // Primeiro, deletar produtos existentes do usuário
+                await supabase
+                    .from('user_products')
+                    .delete()
+                    .eq('user_id', userData.username);
+
+                // Depois, inserir os produtos atuais
+                if (userData.products.length > 0) {
+                    const productsToSave = userData.products.map(product => ({
+                        user_id: userData.username,
+                        product_data: product,
+                        created_at: new Date()
+                    }));
+
+                    const { data, error } = await supabase
+                        .from('user_products')
+                        .insert(productsToSave);
+
+                    if (error) throw error;
+                }
+            } catch (error) {
+                console.error('Error saving products:', error);
+            }
+        }
+
+        async function loadUserProducts() {
+            if (!supabase || !userData.username) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_products')
+                    .select('product_data')
+                    .eq('user_id', userData.username);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    userData.products = data.map(item => item.product_data);
+                    updateDashboard();
+                    updateProductsList();
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Update existing functions to include subscription checks and database saves
+
+        // Override the existing handleLogin function
+        const originalHandleLogin = handleLogin;
+        handleLogin = async function() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAlert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            userData.username = username;
+            document.getElementById('userGreeting').textContent = `Olá, ${username}!`;
+            
+            // Carregar dados do usuário
+            await loadUserSubscription();
+            await loadUserProducts();
+            
+            // Verificar se tem assinatura ativa
+            if (!userSubscription.isActive) {
+                showSubscriptionScreen();
+            } else {
+                if (checkSubscriptionValidity()) {
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    updateDashboard();
+                }
+            }
+        };
+
+        // Override the existing showAddProductForm function
+        const originalShowAddProductForm = showAddProductForm;
+        showAddProductForm = function() {
+            if (!canAddProduct()) return;
+            originalShowAddProductForm();
+        };
+
+        // Override the existing saveProduct function
+        const originalSaveProduct = saveProduct;
+        saveProduct = async function() {
+            if (!canAddProduct()) return;
+            
+            const result = originalSaveProduct();
+            
+            // Salvar no banco de dados
+            await saveUserProducts();
+            
+            return result;
+        };
+
+        // Create database tables (SQL for Supabase)
+        const createTablesSQL = `
+        -- Table for user subscriptions
+        CREATE TABLE IF NOT EXISTS user_subscriptions (
+            id SERIAL PRIMARY KEY,
+            user_id TEXT UNIQUE NOT NULL,
+            plan TEXT NOT NULL DEFAULT 'free',
+            expires_at TIMESTAMP,
+            is_active BOOLEAN DEFAULT false,
+            trial_used BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+
+        -- Table for user products
+        CREATE TABLE IF NOT EXISTS user_products (
+            id SERIAL PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            product_data JSONB NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+
+        -- Enable Row Level Security
+        ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE user_products ENABLE ROW LEVEL SECURITY;
+
+        -- Create policies (adjust as needed for your auth setup)
+        CREATE POLICY "Users can view own subscription" ON user_subscriptions
+            FOR SELECT USING (user_id = current_setting('app.current_user', true));
+
+        CREATE POLICY "Users can update own subscription" ON user_subscriptions
+            FOR ALL USING (user_id = current_setting('app.current_user', true));
+
+        CREATE POLICY "Users can view own products" ON user_products
+            FOR SELECT USING (user_id = current_setting('app.current_user', true));
+
+        CREATE POLICY "Users can manage own products" ON user_products
+            FOR ALL USING (user_id = current_setting('app.current_user', true));
+        `;
+
+        console.log('SQL para criar tabelas no Supabase:', createTablesSQL);
+
+        // Initialize
+        updateDashboard();
+    </script>
+
+
+
+</body></html>
